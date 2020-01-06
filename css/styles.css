@@ -60,10 +60,14 @@
   box-shadow: none;
 }
 
-.text-left {
+.reveal section .display-block {
+  display: block;
+}
+
+.reveal section .text-left {
   text-align: left;
 }
 
-.pull-right {
+.reveal section .pull-right {
   float: right;
 }
