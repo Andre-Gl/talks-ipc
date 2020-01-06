@@ -1,0 +1,195 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>Server-Driven UI</title>
+
+		<link rel="stylesheet" href="reveal.js/css/reset.css">
+		<link rel="stylesheet" href="reveal.js/css/reveal.css">
+		<link rel="stylesheet" href="reveal.js/css/theme/black.css">
+    <!-- style overrides -->
+    <link rel="stylesheet" href="css/styles.css">
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="reveal.js/lib/css/monokai.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+        <section>
+            <h1>IPC*</h1>
+            <small>*Inter-process communication mechanisms</small>
+        </section>
+        <section>
+            <h3>Agenda</h3>
+            <ul>
+                <li>What is IPC?</li>
+                <li>Why IPC?</li>
+                <li>Types of IPC</li>
+                <li>Why we are talking about this?</li>
+            </ul>
+        </section>
+        <section>
+            <h2>What is IPC?</h2>
+        </section>
+        <section>
+            <p class="text-left">A process can be of two type:</p>
+            <ul>
+                <li>Independent process.</li>
+                <li>Co-operating process.</li>
+            </ul>
+            <p class="text-left">
+                An independent process is not affected by the execution of other processes while a co-operating process can be affected by other executing processes.
+            </p>
+        </section>
+        <section>
+            <blockquote>
+                In computer science, inter-process communication or interprocess communication (IPC) refers specifically to the mechanisms
+                an operating system provides to allow the processes to manage shared data
+            </blockquote>
+            <small><a href="https://en.wikipedia.org/wiki/Inter-process_communication">https://en.wikipedia.org/wiki/Inter-process_communication</a></small>
+        </section>
+        <section>
+            <ul>
+                <li>Transfer data/info between address spaces.</li>
+                <li>Maintain protection and isolation.</li>
+                <li>Provide flexibility and performance.</li>
+            </ul>
+        </section>
+        <section>
+            <h2>Why we need IPC?</h2>
+        </section>
+        <section>
+            <blockquote>
+                By providing a user with a set of programming interfaces, IPC helps a programmer organize the activities among different processes. 
+            </blockquote>
+        </section>
+        <section>
+            <img src="./img/consumer-app.png" alt="Consumer App">
+        </section>
+        <section>
+            <h2>Types of IPC</h2>
+        </section>
+        <section>
+            <ul>
+                <li>Message Passing.</li>
+                <li>Shared Memory.</li>
+            </ul>
+        </section>
+        <section>
+            <img src="./img/ipc-models.png" alt="Ipc Models">
+        </section>
+        <section>
+            <h3>Message Passing</h3>
+            <p>Pros:</p>
+            <ul>
+                <li>Easy to use</li>
+                <li>OS controlled. Less chance of getting error</li>
+            </ul>
+            <p>Cons:</p>
+            <ul>
+                <li>OS overhead</li>
+                <li>Operating system has to copy the data (often twice)</li>
+            </ul>
+        </section>
+        <section>
+            <h3>Message Passing</h3>
+            <p>Options</p>
+            <ul>
+                <li>Message Queues</li>
+                <li>Pipes (Anonymous and Named)</li>
+                <li>Sockets (TCP, UDP, ...)</li>
+            </ul>
+        </section>
+        <section>
+            <h3>Shared Memory</h3>
+            <p>Pros:</p>
+            <ul>
+                <li>Faster. It is fully controlled by consumer application</li>
+            </ul>
+            <p>Cons:</p>
+            <ul>
+                <li>Error-prone</li>
+                <li>Requires custom code for synchronization
+                    <small><a href="https://en.wikipedia.org/wiki/Synchronization_(computer_science)">https://en.wikipedia.org/wiki/Synchronization_(computer_science)</a></small>
+                </li>
+            </ul>
+        </section>
+        <section>
+            <h3>Shared Memory</h3>
+            <p>Options</p>
+            <ul>
+                <li>Shared memory</li>
+                <li>File</li>
+                <li>Memory-mapped file</li>
+            </ul>
+        </section>
+        <section>
+            <h2>Why we are talking about this?</h2>
+        </section>
+        <section>
+            <h3>WhatsApp for Mac VOIP</h3>
+            <img src="./img/wa-ipc.jpg" alt="WA IPC">
+        </section>
+        <section>
+            <p>Each frame for 720p video is 1280*720*(3/2) bytes</p>
+            <p>~1.3Mb</p>
+            <small>NV12 encoding - <a href="https://wiki.videolan.org/YUV#NV12">https://wiki.videolan.org/YUV#NV12</a></small>
+        </section>
+        <section>
+            <h3>Message Passing</h3>
+            <p>Main: ~64%, VOIP: ~42%</p>
+        </section>
+        <section>
+            <h3>Pipe</h3>
+            <p>Main: ~64%, VOIP: ~34%</p>
+        </section>
+        <section>
+            <h3>Shared Memory with Semaphore</h3>
+            <p>Main: ~40%, VOIP: ~30%</p>
+        </section>
+        <section>
+            <h2>Thank you for listening!</h2>
+        </section>
+        <section>
+            <h2>Please, ask questions!</h2>
+        </section>
+			</div>
+		</div>
+
+		<script src="reveal.js/js/reveal.js"></script>
+
+		<script>
+      Reveal.initialize({
+      	dependencies: [
+      		// Interpret Markdown in <section> elements
+      		{ src: 'reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+      		{ src: 'reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+
+      		// Syntax highlight for <code> elements
+      		{ src: 'reveal.js/plugin/highlight/highlight.js', async: true },
+
+      		// Zoom in and out with Alt+click
+      		{ src: 'reveal.js/plugin/zoom-js/zoom.js', async: true },
+
+      		// Speaker notes
+      		{ src: 'reveal.js/plugin/notes/notes.js', async: true },
+
+      		// MathJax
+      		{ src: 'reveal.js/plugin/math/math.js', async: true }
+      	]
+      });
+		</script>
+	</body>
+</html>
