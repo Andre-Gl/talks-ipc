@@ -4,7 +4,7 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-		<title>Server-Driven UI</title>
+		<title>IPC</title>
 
 		<link rel="stylesheet" href="reveal.js/css/reset.css">
 		<link rel="stylesheet" href="reveal.js/css/reveal.css">
@@ -72,7 +72,7 @@
         </section>
         <section>
             <blockquote>
-                By providing a user with a set of programming interfaces, IPC helps a programmer organize the activities among different processes. 
+                By providing a user with a set of programming interfaces, IPC helps a programmer organize the activities among different processes.
             </blockquote>
         </section>
         <section>
@@ -82,13 +82,11 @@
             <h2>Types of IPC</h2>
         </section>
         <section>
-            <ul>
-                <li>Message Passing.</li>
-                <li>Shared Memory.</li>
-            </ul>
-        </section>
-        <section>
-            <img src="./img/ipc-models.png" alt="Ipc Models">
+            <h3>Types of IPC</h3>
+            <p>Message Passing | Shared Memory</p>
+            <div>
+                <img src="./img/ipc-models.png" alt="Ipc Models">
+            </div>
         </section>
         <section>
             <h3>Message Passing</h3>
@@ -131,34 +129,118 @@
             <h3>Shared Memory</h3>
             <p>Options</p>
             <ul>
-                <li>Shared memory</li>
-                <li>File</li>
                 <li>Memory-mapped file</li>
+                <li>Shared memory (POSIX)</li>
             </ul>
         </section>
         <section>
-            <h2>Why we are talking about this?</h2>
+            <h3>Shared Memory</h3>
+            <img src="./img/shared-memory.jpg" height="400" alt="Shared Memory">
         </section>
         <section>
-            <h3>WhatsApp for Mac VOIP</h3>
-            <img src="./img/wa-ipc.jpg" alt="WA IPC">
+            <h3>Posix Shared Memory</h3>
+            <p>*POSIX shared memory: The shared region is created in /dev/shm which is created in memory only(RAM) and it requires no disk operations.</p>
+        </section>
+        <section>
+            <h2>Why are we talking about this?</h2>
+        </section>
+        <section>
+            <h3>WhatsApp for Mac VOIP video</h3>
+            <img src="./img/wa-processes.svg" class="frameless" height="400" alt="WA Processes">
+        </section>
+        <section>
+            <h3>WhatsApp for Mac VOIP video</h3>
+            <img src="./img/wa-processes-2.svg" class="frameless" height="200" alt="WA Processes">
         </section>
         <section>
             <p>Each frame for 720p video is 1280*720*(3/2) bytes</p>
             <p>~1.3Mb</p>
+            <p>~60fps</p>
             <small>NV12 encoding - <a href="https://wiki.videolan.org/YUV#NV12">https://wiki.videolan.org/YUV#NV12</a></small>
         </section>
         <section>
             <h3>Message Passing</h3>
             <p>Main: ~64%, VOIP: ~42%</p>
+            <pre><code data-trim class="javascript">
+                // Main process
+                voipPreload.registerVideoCallback((frame) => {
+                    voipWindow.webContents.send('video-frame', frame);
+                });
+            </code></pre>
+            <pre><code data-trim class="javascript">
+                // VOIP Window Renderer
+                ipcRenderer.on('video-frame', (frame) => {
+                    webglRenderer(frame);
+                });
+            </code></pre>
         </section>
         <section>
-            <h3>Pipe</h3>
+            <h3>WebRTC</h3>
             <p>Main: ~64%, VOIP: ~34%</p>
+            <small><a href="https://www.npmjs.com/package/electron-peer-connection">https://www.npmjs.com/package/electron-peer-connection</a></small>
+        </section>
+        <section>
+            <h3>WebRTC</h3>
+            <pre><code data-trim class="javascript">
+                // Main process
+                const WindowPeerConnection =
+                    require("electron-peer-connection").WindowPeerConnection;
+                // ...
+                let mainRTC = new WindowPeerConnection('Main');
+                mainRTC.attachStream(stream);
+                mainRTC.sendStream('Voip');
+            </code></pre>
+        </section>
+        <section>
+            <h3>WebRTC</h3>
+            <pre><code data-trim class="javascript">
+                // VOIP Window Renderer
+                const WindowPeerConnection =
+                    require("electron-peer-connection").WindowPeerConnection;
+                // ...
+                let voipRTC = new WindowPeerConnection('Voip');
+                voipRTC.onReceivedStream(function (stream) {
+                    video.srcObject = stream;
+                });
+            </code></pre>
         </section>
         <section>
             <h3>Shared Memory with Semaphore</h3>
-            <p>Main: ~40%, VOIP: ~30%</p>
+            <p>Main: ~40%, VOIP: ~25%</p>
+            <small><a href="https://github.com/ukrbublik/shm-typed-array">https://github.com/ukrbublik/shm-typed-array</a></small>
+            <small><a href="https://github.com/dbousque/posix-semaphore">https://github.com/dbousque/posix-semaphore</a></small>
+        </section>
+        <section>
+            <h3>Shared Memory with Semaphore</h3>
+            <pre><code data-trim class="javascript">
+                // Main process
+                videoFrame = shm.create(SEGMENT_ELEMENTS,
+                    Uint8Array, OUTPUT_SEGMENT_ID);
+                sem = new Semaphore(VIDEO_BUFFER_OUTPUT_SEMAPHORE);
+                // ...
+                voipPreload.registerVideoCallback((frame) => {
+                    sem.acquire();
+                    videoFrame.set(frame);
+                    sem.release();
+                });
+            </code></pre>
+        </section>
+        <section>
+            <h3>Shared Memory with Semaphore</h3>
+            <pre><code data-trim class="javascript">
+                // VOIP Window Renderer
+                videoFrame = shm.get(OUTPUT_SEGMENT_ID, 'Uint8Array');
+                sem = new Semaphore(VIDEO_BUFFER_OUTPUT_SEMAPHORE);
+                // ...
+                renderVideo = () => {
+                    sem.acquire();
+                    webglRenderer(videoFrame);
+                    sem.release();
+                    requestAnimationFrame(this.renderVideo);
+                });
+
+                requestAnimationFrame(this.renderVideo);
+            </code></pre>
         </section>
         <section>
             <h2>Thank you for listening!</h2>

@@ -52,7 +52,7 @@
 	animation: Gradient 5s ease infinite;
 }
 
-.reveal section img.icon {
+.reveal section img.frameless {
   background: none;
   margin: 0;
   padding: 0;
